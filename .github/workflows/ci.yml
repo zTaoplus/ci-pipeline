@@ -90,8 +90,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Cache Ctbert
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
+        id: cache-ctbert
         with:
           path: downloads
           key: ctbert-ubuntu-latest-x64-${{ hashFiles('CTBERTHASH') }}
