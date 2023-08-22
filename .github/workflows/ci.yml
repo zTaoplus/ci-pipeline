@@ -94,7 +94,7 @@ jobs:
         id: cache-ctbert
         with:
           path: downloads
-          key: ctbert-ubuntu-latest-x64-${{ hashFiles('CTBERTHASH') }}
+          key: ctbert-Linux-x64-${{ hashFiles('CTBERTHASH') }}
       - name: Check Cache Uses
         run: |
           ls -la downloads/ckpt
