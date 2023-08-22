@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  release-pypi:
+    name: release-pypi
+    runs-on: ubuntu-latest
+    env:
+      PYPI_REPOSITORY: https://test.pypi.org/legacy/
+    permissions:
+      id-token: write
+      contents: write
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - uses: pdm-project/setup-pdm@v3
+
+
+      - name: Check prerelease
+        id: check_version
+        run: |
+          if [[ "${{ github.ref }}" =~ ^refs/tags/[0-9.]+$ ]]; then
+            echo "PRERELEASE=false" >> $GITHUB_OUTPUT
+          else
+            echo "PRERELEASE=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Install Pdm via pipx
+        run: pipx install pdm
+            
+      - name: build
+        run: pdm build
+
+      - name: Publish package distributions to PyPI
+        run: pdm publish --no-build --repository https://test.pypi.org/legacy/
+
+      - name: Get Changelog
+        id: get-changelog
+        run: |
+          awk '/-{3,}/{flag=1;next}/Release/{if (flag==1)exit}flag' CHANGELOG.md > .changelog.md
+
+      - name: Create Release
+        uses: actions/create-release@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: v${{ github.ref }}
+          body_path: .changelog.md
+          draft: false
+          prerelease: ${{ steps.check_version.outputs.PRERELEASE }}
