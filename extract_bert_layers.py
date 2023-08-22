@@ -32,7 +32,7 @@ for name, param in model.named_parameters():
         torch.save(param, file_abspath(BASE_DIR, "layernorm_bias.pt"))
         print(f"layernorm_bias.pt file save to {BASE_DIR} ")
 
-tk_path = file_abspath(BASE_DIR, 'bert', 'tokenizer')
+tk_path = file_abspath(BASE_DIR, 'tokenizer')
 tokenizer.save_pretrained(tk_path)
 print(f"tokenizer files save to {tk_path}")
 print("======TASK DONE======")

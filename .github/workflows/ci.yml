@@ -89,3 +89,19 @@ jobs:
           ls -la ./downloads/ckpt
           echo "============="
           ls -la ./downloads/bert
+
+  Install:
+    runs-on: ubuntu-latest
+    needs: Testing
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Cache Ctbert
+        uses: actions/cache@v3
+        with:
+          path: downloads
+          key: ctbert-ubuntu-latest-x64-${{ hashFiles('CTBERTHASH') }}
+      - name: Check Cache Uses
+        run: |
+          ls -la downloads/ckpt
+        
