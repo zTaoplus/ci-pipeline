@@ -28,9 +28,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: downloads
-          key: ctbert-model-cache-${{ hashFiles('CTBERTHASH') }}
+          key: ci-model-cache-${{ hashFiles('CTBERTHASH') }}
           restore-keys: |
-            ctbert-model-cache-
+            ci-model-cache-
+          enableCrossOsArchive: true
 
       # Both have ctbert and bert files
       - name: Download Ctbert From HuggingFace
@@ -39,6 +40,8 @@ jobs:
           mkdir -p downloads
           cd downloads
           git clone https://huggingface.co/zTaoPlus/ctbert ckpt
+          cd ckpt
+          rm -rf .git
   
   Testing:
     env:
@@ -58,33 +61,8 @@ jobs:
         id: cache-ctbert
         with:
           path: downloads
-          key: ctbert-model-cache-${{ hashFiles('CTBERTHASH') }}
-    
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.arch }}
-      - name: Set Variables
-        id: set_variables
-        shell: bash
-        run: |
-          echo "PY=$(python -c 'import hashlib, sys;print(hashlib.sha256(sys.version.encode()+sys.executable.encode()).hexdigest())')" >> $GITHUB_OUTPUT
-          echo "PIP_CACHE=$(pip cache dir)" >> $GITHUB_OUTPUT
-          echo "BERT_LAYERS_PATH=$(python -c 'from pathlib import Path; print(Path(Path.cwd(),"downloads","ckpt","bert"))')" >> $GITHUB_OUTPUT
-      - name: Cache PIP
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.set_variables.outputs.PIP_CACHE }}
-          key: ${{ runner.os }}-pip-${{ steps.set_variables.outputs.PY }}
-      - name: Cache venv
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ matrix.arch }}-${{ matrix.python-version }}-${{ hashFiles('pdm.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-${{ matrix.arch }}-${{ matrix.python-version }}-
+          key: ci-model-cache-${{ hashFiles('CTBERTHASH') }}
+          enableCrossOsArchive: true
       - name: Run Python
-        env:
-          BERT_LAYERS_PATH: ${{ steps.set_variables.outputs.BERT_LAYERS_PATH }}
-        run: python -c 'import os; print(os.getenv("BERT_LAYERS_PATH"))'
+        shell: bash
+        run: ls ./downloads
