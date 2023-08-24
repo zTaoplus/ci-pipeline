@@ -58,7 +58,7 @@ jobs:
         id: cache-ctbert
         with:
           path: downloads
-          key: ctbert-${{ runner.os }}-${{ matrix.arch }}-${{ hashFiles('CTBERTHASH') }}
+          key: ctbert-model-cache-${{ hashFiles('CTBERTHASH') }}
     
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -88,18 +88,3 @@ jobs:
         env:
           BERT_LAYERS_PATH: ${{ steps.set_variables.outputs.BERT_LAYERS_PATH }}
         run: python -c 'import os; print(os.getenv("BERT_LAYERS_PATH"))'
-  Install:
-    runs-on: ubuntu-latest
-    needs: [Download]
-    steps:
-      - uses: actions/checkout@v3
-      
-      - uses: actions/cache@v3
-        id: cache-ctbert
-        with:
-          path: downloads
-          key: ctbert-model-cache-${{ hashFiles('CTBERTHASH') }}
-      - name: Check Cache Uses
-        run: |
-          ls -la downloads/ckpt
-        
