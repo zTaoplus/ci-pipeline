@@ -44,4 +44,4 @@ jobs:
           sudo ldconfig
       - name: Run Python
         shell: bash
-        run: ls ./downloads
+        run: env
