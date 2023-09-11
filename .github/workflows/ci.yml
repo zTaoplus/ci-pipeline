@@ -39,7 +39,7 @@ jobs:
       - name: Set up CUDA
         shell: bash
         if: matrix.os == 'ubuntu-latest'
-        run:
+        run: | 
           sudo apt-get install nvidia-cuda-toolkit
           sudo ldconfig
       - name: Run Python
