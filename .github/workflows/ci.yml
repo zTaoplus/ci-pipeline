@@ -17,37 +17,10 @@ on:
       - Dockerfile
 
 jobs:
-  Download:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          lfs: true
-      - name: Cache Ctbert
-        id: cache-ctbert
-        uses: actions/cache@v3
-        with:
-          path: downloads
-          key: ci-model-cache-${{ hashFiles('CTBERTHASH') }}
-          restore-keys: |
-            ci-model-cache-
-          enableCrossOsArchive: true
-
-      # Both have ctbert and bert files
-      - name: Download Ctbert From HuggingFace
-        if: steps.cache-ctbert.outputs.cache-hit != 'true'
-        run: |
-          mkdir -p downloads
-          cd downloads
-          git clone https://huggingface.co/zTaoPlus/ctbert ckpt
-          cd ckpt
-          rm -rf .git
-  
   Testing:
     env:
       PYTHONDEVMODE: 1
     runs-on: ${{ matrix.os }}
-    needs: [Download]
     strategy:
       fail-fast: false
       matrix:
@@ -63,6 +36,12 @@ jobs:
           path: downloads
           key: ci-model-cache-${{ hashFiles('CTBERTHASH') }}
           enableCrossOsArchive: true
+      - name: Set up CUDA
+        shell: bash
+        if: matrix.os == 'ubuntu-latest'
+        run:
+          sudo apt-get install nvidia-cuda-toolkit
+          sudo ldconfig
       - name: Run Python
         shell: bash
         run: ls ./downloads
